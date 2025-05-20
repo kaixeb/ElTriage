@@ -19,8 +19,8 @@ cli_options() {
 cat << EOF
 
 Usage: sudo $0 [ -a OUTARCHIVE ] [ -d OUTPATH ]
- -a OUTARCHIVE (optional) - path of the result archive (tar.gz extension). Default is "CBRLinuxTriage_{hostname}-{date}".
- -d OUTPATH (optional) - name of the directory with the result files. Default is "CBRLinuxTriage_result".
+ -a OUTARCHIVE (optional) - path of the result archive (tar.gz extension). Default is "ElTriage_{hostname}-{date}".
+ -d OUTPATH (optional) - name of the directory with the result files. Default is "ElTriage_result".
 EOF
 }
 
@@ -551,7 +551,7 @@ done
 is_root
 
 # Create result directory
-OUTPATH=${OUTPATH:-CBRLinuxTriage_result}
+OUTPATH=${OUTPATH:-ElTriage_result}
 
 # Check OS
 get_os
@@ -612,7 +612,7 @@ fi
 
 # Force date format
 DTG=$(date +"%Y%m%d-%H%M")
-DEFARCNAME=CBRLinuxTriage_"$SHORTNAME"-"$DTG".tar.gz
+DEFARCNAME=ElTriage_"$SHORTNAME"-"$DTG".tar.gz
 
 if [ -n "$OUTARCHIVE" ]; then
  OUTARCHIVE="$OUTARCHIVE".tar.gz
