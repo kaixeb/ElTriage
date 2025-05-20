@@ -407,18 +407,22 @@ collect_live_info(){
     hostnamectl > "$OUTPATH"/LiveInfo/SystemInfo/Hostname.txt 2>/dev/null
     uname -a > "$OUTPATH"/LiveInfo/SystemInfo/System.txt 2>/dev/null
     cat /proc/cpuinfo > "$OUTPATH"/LiveInfo/SystemInfo/CPU.txt 2>/dev/null
+    df -h > "$OUTPATH"/LiveInfo/SystemInfo/DiskSpace.txt 2>/dev/null
+    free -htw > "$OUTPATH"/LiveInfo/SystemInfo/RAM.txt 2>/dev/null
     dmesg > "$OUTPATH"/LiveInfo/SystemInfo/KernelMessageBuffer.txt 2>/dev/null
+    sysctl -a > "$OUTPATH"/LiveInfo/SystemInfo/KernelParameters.txt 2>/dev/null
     dmidecode > "$OUTPATH"/LiveInfo/SystemInfo/DMITable.txt 2>/dev/null
     lshw > "$OUTPATH"/LiveInfo/SystemInfo/Hardware.txt 2>/dev/null
     mount > "$OUTPATH"/LiveInfo/SystemInfo/MountedFs.txt 2>/dev/null
+    lsmod > "$OUTPATH"/LiveInfo/SystemInfo/LoadedModules.txt 2>/dev/null
     ps auxw > "$OUTPATH"/LiveInfo/SystemInfo/Processes.txt 2>/dev/null
     touch "$OUTPATH"/LiveInfo/SystemInfo/RawProcesses.txt
-    for pid in "/proc/"[0-9]*; do 
-     echo "$pid" | sed -e "s:/proc/:pid=:" >> "$OUTPATH"/LiveInfo/SystemInfo/RawProcesses.txt; 
+    for pid in "/proc/"[0-9]*; do
+     echo "$pid" | sed -e "s:/proc/:pid=:" >> "$OUTPATH"/LiveInfo/SystemInfo/RawProcesses.txt;
      command=$(tr -d '\0' <"$pid"/cmdline);
      if [ -n "$command" ]; then
-      echo "$command" >> "$OUTPATH"/LiveInfo/SystemInfo/RawProcesses.txt    
-     fi 
+      echo "$command" >> "$OUTPATH"/LiveInfo/SystemInfo/RawProcesses.txt
+     fi
     done
     arp -e > "$OUTPATH"/LiveInfo/SystemInfo/ARP.txt 2>/dev/null
     ip a > "$OUTPATH"/LiveInfo/SystemInfo/Interfaces.txt 2>/dev/null
@@ -435,22 +439,18 @@ collect_live_info(){
     if [[ $(which pip) != "" ]]; then
      pip list -v > "$OUTPATH"/LiveInfo/SystemInfo/PythonPackages.txt 2>/dev/null
     fi
-    df -h > "$OUTPATH"/LiveInfo/SystemInfo/DiskSpace.txt 2>/dev/null
-    free -htw > "$OUTPATH"/LiveInfo/SystemInfo/RAM.txt 2>/dev/null
-    lsmod > "$OUTPATH"/LiveInfo/SystemInfo/LoadedModules.txt 2>/dev/null
     echo "Host information from live system collected"
 
-    # Logins
+    # Login info
     last -a -F > "$OUTPATH"/LiveInfo/Logins/Logins.txt 2>/dev/null
     lastb -a -F > "$OUTPATH"/LiveInfo/Logins/UnsuccessfulLogins.txt 2>/dev/null
     lastlog > "$OUTPATH"/LiveInfo/Logins/LastLoginByUser.txt 2>/dev/null
     who -a > "$OUTPATH"/LiveInfo/Logins/AllLoggedUsers.txt 2>/dev/null
     w > "$OUTPATH"/LiveInfo/Logins/LoggedUsersWithProcs.txt 2>/dev/null
     echo "Login data collected"
+
     pwck > "$OUTPATH"/LiveInfo/PasswordVerification.txt 2>/dev/null
-    
-    sysctl -a > "$OUTPATH"/LiveInfo/KernelParameters.txt 2>/dev/null
-    
+
     # Services
     service --status-all > "$OUTPATH"/LiveInfo/Services/ServicesStatus.txt 2>/dev/null
     systemctl list-units --no-pager --all > "$OUTPATH"/LiveInfo/Services/SystemdSystemUnits.txt 2>/dev/null
