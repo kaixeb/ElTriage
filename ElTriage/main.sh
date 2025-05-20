@@ -1,20 +1,5 @@
 #!/bin/bash
 
-# Check for root privileges
-is_root(){
-root_uid=0
-current_uid=$(id -u)
-if [ $current_uid -ne $root_uid ] ; then
- echo " "
- echo " ***************************************************************"
- echo "  ERROR: You must have root privileges to run this script!"
- echo " ***************************************************************"
- echo " "
- exit
-fi
-}
-
-
 cli_options() {
 cat << EOF
 
@@ -22,24 +7,6 @@ Usage: sudo $0 [ -a OUTARCHIVE ] [ -d OUTPATH ]
  -a OUTARCHIVE (optional) - path of the result archive (tar.gz extension). Default is "ElTriage_{hostname}-{date}".
  -d OUTPATH (optional) - name of the directory with the result files. Default is "ElTriage_result".
 EOF
-}
-
-get_os(){
-    os_release=$(find /etc ! -path /etc -prune -name "*release*" -print0 | xargs -0 cat 2>/dev/null | tr [:upper:] [:lower:])
-    case $os_release in 
-    *astralinux*|*debian*)
-    {
-     operating_system=1 
-     echo "Debian-like distro found."
-    } 
-    ;;
-    *"red hat"*|*rhel*)
-    {
-     operating_system=2
-     echo "Red-Hat-like distro found."
-    }
-    ;;
-    esac
 }
 
 collect_filesystem_info(){
@@ -500,6 +467,24 @@ collect_live_info(){
     echo "All live data collected"
 }
 
+get_os(){
+    os_release=$(find /etc ! -path /etc -prune -name "*release*" -print0 | xargs -0 cat 2>/dev/null | tr [:upper:] [:lower:])
+    case $os_release in
+    *astralinux*|*debian*)
+    {
+     operating_system=1
+     echo "Debian-like distro found."
+    }
+    ;;
+    *"red hat"*|*rhel*)
+    {
+     operating_system=2
+     echo "Red-Hat-like distro found."
+    }
+    ;;
+    esac
+}
+
 get_users(){
     user_list=()
     # Extract users with home directories
@@ -526,6 +511,18 @@ create_dir_for_subdirs(){
     done
 }
 
+is_root(){
+  root_uid=0
+  current_uid=$(id -u)
+   if [ $current_uid -ne $root_uid ] ; then
+    echo " "
+    echo " ***************************************************************"
+    echo "  ERROR: You must have root privileges to run this script!"
+    echo " ***************************************************************"
+    echo " "
+    exit
+   fi
+}
 
 while getopts "a:d:h" OPTION
 do
@@ -558,7 +555,7 @@ get_os
 
 # Create result directory
 mkdir -p "$OUTPATH"
-chmod 600 "$OUTPATH"
+chmod 644 "$OUTPATH"
 
 # Create system directories
 mkdir -p "$OUTPATH/Logs/Coredumps"
